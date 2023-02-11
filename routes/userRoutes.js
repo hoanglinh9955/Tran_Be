@@ -17,9 +17,5 @@ router.post("/login", [
   check("email").isEmail().withMessage("Invalid email"),
   check("password").not().isEmpty().withMessage("Password is required")
 ], userController.login);
-//router.post('/loginn', userController.login);
-
-
-//router.post('/signup', userController.register)
 
 module.exports = router;

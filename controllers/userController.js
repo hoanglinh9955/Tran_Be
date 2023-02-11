@@ -2,6 +2,17 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator/check');
+const nodemailer = require("nodemailer");
+const sendgridTransport = require("nodemailer-sendgrid-transport");
+
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key:
+        "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",
+    },
+  })
+);
 
 exports.register = async (req, res, next) => {
   const errors = validationResult(req);
@@ -35,6 +46,12 @@ exports.register = async (req, res, next) => {
             message: 'User created successfully',
             result: result
           });
+          return transporter.sendMail({
+            to: email,
+            from: "hoanglinh9955@gmail.com",
+            subject: "Signup succeeded!",
+            html: "<h1>From LinhHoang App Fuck u bitch!!!</h1>",
+          })
         })
         .catch(err => {
           res.status(500).json({
