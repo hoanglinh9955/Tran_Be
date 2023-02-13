@@ -3,23 +3,24 @@ const bodyParser = require('body-parser');
 const mssql = require('mssql');
 const config = require('./config');
 const app = express();
-
+const cors = require('cors');
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
+app.use(cors());
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-  );
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
-});
+
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const userRoutes = require("./routes/userRoutes");
+const tripRoutes = require('./routes/tripRoutes');
 
 app.use('/api', userRoutes);
+app.use('/api', tripRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error);

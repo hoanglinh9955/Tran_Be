@@ -11,15 +11,16 @@ create table route(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    company_id INT FOREIGN KEY REFERENCES company(id),
    depart VARCHAR(100),
-   destination VARCHAR(100)
+   destination VARCHAR(100),
+   depart_date DATE
 );
 
 
 create table trip(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    route_id INT FOREIGN KEY REFERENCES route(id),
-   begin_time DATE,
-   end_time DATE,
+   begin_time time,
+   end_time time,
    distance int,
    price int
 );
@@ -32,7 +33,7 @@ create table type(
 create table transportation(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    trip_id INT FOREIGN KEY REFERENCES trip(id),
-   type_id INT FOREIGN KEY REFERENCES type(id),
+   type int,
    image_path VARCHAR(50),
    name VARCHAR(50)
 );
@@ -66,8 +67,6 @@ create table ticket(
    quantity INT
 );
 
-ALTER TABLE route
-ADD  depart_date DATE;
 
 
 

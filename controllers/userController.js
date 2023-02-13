@@ -2,17 +2,12 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator/check');
-const nodemailer = require("nodemailer");
-const sendgridTransport = require("nodemailer-sendgrid-transport");
 
-const transporter = nodemailer.createTransport(
-  sendgridTransport({
-    auth: {
-      api_key:
-        "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",
-    },
-  })
-);
+const sendgrid = require('@sendgrid/mail');
+
+const API_KEY = "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"
+
+sendgrid.setApiKey(API_KEY);
 
 exports.register = async (req, res, next) => {
   const errors = validationResult(req);
@@ -38,20 +33,31 @@ exports.register = async (req, res, next) => {
       user.password = hash;
       user.phone_number = phone_number;
       user.role = "USER"
-     
 
-      const save = user.save()
+    //  if(user.findOne(email)){
+    //   return res.status(401).json({
+    //     message: 'User with that email exist. Please use another email'
+    //   });
+    //  }
+
+      user.save()
         .then(result => {
           res.status(201).json({
             message: 'User created successfully',
             result: result
           });
-          return transporter.sendMail({
+           sendgrid.send({
             to: email,
             from: "hoanglinh9955@gmail.com",
             subject: "Signup succeeded!",
-            html: "<h1>From LinhHoang App Fuck u bitch!!!</h1>",
+            text: "this is test",
+            html: "<h1>From LinhHoang App Fuck u bitch!!!</h1>"
+          }).then(result => {
+            console.log("email sending...")
+          }).catch(err => {
+            console.log('err at send email.')
           })
+          return
         })
         .catch(err => {
           res.status(500).json({
@@ -75,7 +81,7 @@ exports.login = async (req, res, next) => {
   const user = await User.findOne(email)
   
     if (!user) {
-      return res.status(401).json({
+      return res.status(400).json({
         message: 'User with that email does not exist. Please signup'
       });
     }
@@ -85,7 +91,7 @@ exports.login = async (req, res, next) => {
     .then(isEqual => {
       if (!isEqual) {
         const error = new Error('Wrong password!');
-        error.statusCode = 401;
+        error.statusCode = 400;
         throw error;
       }
       const token = jwt.sign(

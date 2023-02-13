@@ -1,4 +1,3 @@
-const { json } = require('body-parser');
 const mssql = require('mssql');
 const config = require('../config');
 class User {
@@ -51,8 +50,12 @@ class User {
             return result.recordset[0];
         } catch (error) {
             throw error;
+        } finally{
+            mssql.close();
         }
-    }
+
+        }
+    
 
     static async find(options) {
         try {
