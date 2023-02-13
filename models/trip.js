@@ -45,7 +45,7 @@ class Trip {
     const result = await pool.request()
     .input('depart', mssql.VarChar, depart)
     .input('destination', mssql.VarChar, destination)
-    .input('depart_date', mssql.Date, depart_date)
+    .input('depart_date', mssql.VarChar, depart_date)
     .query(query)
     // define the SQL query
     

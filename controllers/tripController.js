@@ -7,7 +7,8 @@ exports.getTrips = async (req, res) => {
     const depart = req.body.depart;
     const destination = req.body.destination;
     
-    const depart_date = Date.parse(req.body.depart_date);
+    const depart_date = req.body.depart_date;
+   
     const trips = new Trips();
 
     trips = await Trips.getTrips(depart, destination, depart_date)
