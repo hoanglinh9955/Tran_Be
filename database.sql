@@ -12,7 +12,7 @@ create table route(
    company_id INT FOREIGN KEY REFERENCES company(id),
    depart VARCHAR(100),
    destination VARCHAR(100),
-   depart_date DATE
+   depart_date VARCHAR(50)
 );
 
 
@@ -57,7 +57,8 @@ create table user_(
    email VARCHAR(50),
    password VARCHAR(250),
    phone_number int,
-   role VARCHAR(20)
+   role VARCHAR(20),
+   status int
 );
 
 create table ticket(

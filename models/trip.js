@@ -42,7 +42,7 @@ class Trip {
       WHERE r.depart = @depart AND r.destination = @destination AND r.depart_date = @depart_date
     `;
     // create a new request object
-    const result = await pool.request()
+    const result = new pool.Request()
     .input('depart', mssql.VarChar, depart)
     .input('destination', mssql.VarChar, destination)
     .input('depart_date', mssql.VarChar, depart_date)

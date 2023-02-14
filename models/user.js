@@ -1,16 +1,17 @@
 const mssql = require('mssql');
 const config = require('../config');
 class User {
-    constructor(name, email, password, phone_number, role) {
+    constructor(name, email, password, phone_number, role, status) {
 
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone_number = phone_number;
         this.role = role;
+        this.status = status;
     }
 
-    async save() {
+     async save() {
         try {
             // Connect to the database
             const pool = await mssql.connect(config.sql);
@@ -22,67 +23,35 @@ class User {
                 .input('password', mssql.VarChar, this.password)
                 .input('phone_number', mssql.Int, parseInt(this.phone_number))
                 .input('role', mssql.VarChar, this.role)
-                .query('INSERT INTO user_ (name, email, password, phone_number, role) VALUES (@name, @email, @password, @phone_number, @role)');
-           
-               
+                .input('status', mssql.Int, this.status)
+                .query('INSERT INTO user_ (name, email, password, phone_number, role, status) VALUES (@name, @email, @password, @phone_number, @role, @status)');
+
+              
             // Return success
-            return result.recordsets[0];
+            return result;
         } catch (error) {
             console.log(error)
-            throw error;
+            
         }
     }
-
-    static async findOne(email) {
+    async findOne(email) {
         try {
             // Connect to the database
             const pool = await mssql.connect(config.sql);
-
-            // Get the user from the database
-            console.log(email)
-            const result = await pool.request()
-                .input('email', mssql.VarChar, email)
-                .query('SELECT * FROM user_ WHERE email = @email');
-            console.log(result)
-            console.log(typeof(result))
-            console.log(typeof(result.recordset[0]))
-            // Return the user
-            return result.recordset[0];
-        } catch (error) {
-            throw error;
-        } finally{
-            mssql.close();
-        }
-
-        }
     
-
-    static async find(options) {
-        try {
-            // Connect to the database
-            const pool = await mssql.connect(config.sql);
-
-            // Build the query
-            let query = 'SELECT * FROM user_';
-            if (options) {
-                query += ' WHERE ';
-                for (let key in options) {
-                    if (options.hasOwnProperty(key)) {
-                        query += `${key} = '${options[key]}' AND `;
-                    }
-                }
-                query = query.slice(0, -5);
-            }
-
-            // Get the users from the database
-            const result = await pool.request().query(query);
-
-            // Return the users
-            return result.recordset;
-        } catch (error) {
-            return error;
+            // Get the user from the database
+            const result = await pool.request()
+            .input('email', mssql.VarChar, email)
+            .query('SELECT * FROM user_ WHERE email = @email');
+            
+            return result;
+            
+        } catch (err) {
+            console.log(err)
         }
-    }
-}
 
-module.exports = User;
+        }
+        
+    }
+
+module.exports = {User};

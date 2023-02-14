@@ -1,4 +1,5 @@
-const User = require('../models/user');
+const { User } = require('../models/user');
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator/check');
@@ -19,55 +20,58 @@ exports.register = async (req, res, next) => {
     return;
   }
   const { name, email, password, phone_number } = req.body;
-    bcrypt.hash(password, 10, (err, hash) => {
+  bcrypt.hash(password, 10, async (err, hash) => {
     if (err) {
       console.log("this is err")
       return res.status(500).json({
-        error: err
-      });
-    } else {
-     
-      const user = new User();
-      user.email = email;
-      user.name = name;
-      user.password = hash;
-      user.phone_number = phone_number;
-      user.role = "USER"
+        message: 'some thing went wrong, invalid input',
+        data: false
+      })
+    } 
+      const user = new User(name, email, hash, phone_number, "USER", 1);
 
-      const s = User.findOne(email)
-     if(s){
-      return res.status(401).json({
-        message: 'User with that email exist. Please use another email'
-      });
-     }
+      const result = await user.findOne(email)
+      .then(result => { return result})
+      .catch(err => console.log(err))
 
-      user.save()
-        .then(result => {
-          res.status(201).json({
-            message: 'User created successfully',
-            result: result
-          });
-           sendgrid.send({
-            to: email,
-            from: "hoanglinh9955@gmail.com",
-            subject: "Signup succeeded!",
-            text: "this is test",
-            html: "<h1>From LinhHoang App Fuck u bitch!!!</h1>"
-          }).then(result => {
-            console.log("email sending...")
-          }).catch(err => {
-            console.log('err at send email.')
-          })
-          return
-        })
-        .catch(err => {
-          res.status(500).json({
-            error: err
-          });
+        // if (result) {
+        //   res.status(500).json({
+        //     error: err,
+        //     message: 'some thing went wrong, invalid input'
+        //   }); 
+        // }
+        console.log(result.lengh)
+      if (!(result.lengh === undefined)) {
+        res.status(401).json({
+          message: 'User with that email exist. Please use another email',
+          data: false
         });
+        return 
+      }
+      const rs = await user.save()
+        .then(result => {return result})
+        .catch(err => console.log(err))
+
+        if (!rs) {
+          return res.status(200).json({
+            message: "Insert To Database False",
+            data: false
+          })
+        }
+        if (rs) {
+          return res.status(200).json({
+            message: "Create User Success",
+            data: true
+          })
+        }
+      });
+
     }
-  });
-};
+  
+
+
+
+
 
 exports.login = async (req, res, next) => {
   const errors = validationResult(req);
@@ -79,20 +83,30 @@ exports.login = async (req, res, next) => {
     return;
   }
   const { email, password } = req.body;
-  const user = await User.findOne(email)
+  const user = new User();
   
-    if (!user) {
-      return res.status(400).json({
-        message: 'User with that email does not exist. Please signup'
-      });
-    }
+  
+  const result = await user.findOne(email)
+  .then(result => { return result})
+  .catch(err => console.log(err))
 
-    loadedUser = user;
-      return bcrypt.compare(password, user.password)
+  if (result.lengh === undefined) {
+    res.status(400).json({
+      message: 'User with that email does not exist. Please signup',
+      data: false  
+    });
+    return;
+  }
+  
+  loadedUser = result.recordset[0];
+  console.log(loadedUser);
+
+  return bcrypt.compare(password, loadedUser.password)
     .then(isEqual => {
       if (!isEqual) {
         const error = new Error('Wrong password!');
         error.statusCode = 400;
+        error.data = false;
         throw error;
       }
       const token = jwt.sign(
@@ -103,7 +117,13 @@ exports.login = async (req, res, next) => {
         'somesupersecretsecret',
         { expiresIn: '1h' }
       );
-      res.status(200).json({ token: token, userId: loadedUser.id.toString() });
+      res.status(200).json({ 
+        message: 'Login successed',
+        data: true,
+        token: token,
+        userId: loadedUser.id.toString()
+      });
+      return;
     })
     .catch(err => {
       if (!err.statusCode) {
@@ -111,4 +131,4 @@ exports.login = async (req, res, next) => {
       }
       next(err);
     });
-  }
+}

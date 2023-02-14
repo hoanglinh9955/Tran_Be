@@ -4,9 +4,12 @@ const mssql = require('mssql');
 const config = require('./config');
 const app = express();
 const cors = require('cors');
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
+
+//instantiate a connection pool
+const Pool = new mssql.ConnectionPool(config.sql);
+
 app.use(bodyParser.json()); // application/json
-app.use(cors());
+app.use(cors()); //Access-Control-Allow-Origin
 
 
 
@@ -16,12 +19,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+
+//Router
 const userRoutes = require("./routes/userRoutes");
 const tripRoutes = require('./routes/tripRoutes');
 
 app.use('/api', userRoutes);
 app.use('/api', tripRoutes);
 
+
+//error handle for app
 app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode || 500;
@@ -31,9 +38,18 @@ app.use((error, req, res, next) => {
   });
 
   
-mssql.connect(config.sql)
-  .then(app.listen(process.env.port, () => {
-    console.log(`Server is running on port ${process.env.port}`)
-}))
-  .catch(err => console.log(err))
+// mssql.connect(config.sql)
+//   .then(app.listen(process.env.port, () => {
+//     console.log(`Server is running on port ${process.env.port}`)
+// }))
+//   .catch(err => console.log(err))
   
+//connect the pool and start the web server when done
+Pool.connect().then(() => {
+  
+  app.listen(process.env.port, () => {
+    console.log('Example app listening at http://%s:%s', process.env.host, process.env.port)
+  })
+}).catch((err)=> {
+  console.error('Error creating connection pool', err)
+});

@@ -6,12 +6,12 @@ const router = express.Router();
 
 //Route to handle user registration
 router.post("/register", 
-  check("email").isEmail().withMessage("Invalid email")
+  check("email").isEmail()
 , userController.register);
   
 //Route to handle user login
 router.post("/login", 
-  check("email").isEmail().withMessage("Invalid email"),
+  check("email").isEmail(),
  userController.login);
 
 module.exports = router;
