@@ -27,47 +27,47 @@ exports.register = async (req, res, next) => {
         message: 'some thing went wrong, invalid input',
         data: false
       })
-    } 
-      const user = new User(name, email, hash, phone_number, "USER", 1);
+    }
+    const user = new User(name, email, hash, phone_number, "USER", 1);
 
-      const result = await user.findOne(email)
-      .then(result => { return result})
+    const result = await user.findOne(email)
+      .then(result => { return result })
       .catch(err => console.log(err))
 
-        // if (result) {
-        //   res.status(500).json({
-        //     error: err,
-        //     message: 'some thing went wrong, invalid input'
-        //   }); 
-        // }
-        console.log(result.lengh)
-      if (!(result.lengh === undefined)) {
-        res.status(401).json({
-          message: 'User with that email exist. Please use another email',
-          data: false
-        });
-        return 
-      }
+    // if (result) {
+    //   res.status(500).json({
+    //     error: err,
+    //     message: 'some thing went wrong, invalid input'
+    //   }); 
+    // }
+    console.log(result.recordset[0])
+    if (result.recordset[0]) {
+      res.status(401).json({
+        message: 'User with that email exist. Please use another email',
+        data: false
+      });
+      return
+    } else {
       const rs = await user.save()
-        .then(result => {return result})
+        .then(result => { return result })
         .catch(err => console.log(err))
 
-        if (!rs) {
-          return res.status(200).json({
-            message: "Insert To Database False",
-            data: false
-          })
-        }
-        if (rs) {
-          return res.status(200).json({
-            message: "Create User Success",
-            data: true
-          })
-        }
-      });
-
+      if (!rs) {
+        return res.status(200).json({
+          message: "Insert To Database False",
+          data: false
+        })
+      }
+      if (rs) {
+        return res.status(200).json({
+          message: "Create User Success",
+          data: true
+        })
+      }
     }
-  
+  });
+}
+
 
 
 
@@ -84,20 +84,20 @@ exports.login = async (req, res, next) => {
   }
   const { email, password } = req.body;
   const user = new User();
-  
-  
-  const result = await user.findOne(email)
-  .then(result => { return result})
-  .catch(err => console.log(err))
 
-  if (result.lengh === undefined) {
+
+  const result = await user.findOne(email)
+    .then(result => { return result })
+    .catch(err => console.log(err))
+
+  if (result.recordset[0] === undefined) {
     res.status(400).json({
       message: 'User with that email does not exist. Please signup',
-      data: false  
+      data: false
     });
     return;
   }
-  
+
   loadedUser = result.recordset[0];
   console.log(loadedUser);
 
@@ -117,7 +117,7 @@ exports.login = async (req, res, next) => {
         'somesupersecretsecret',
         { expiresIn: '1h' }
       );
-      res.status(200).json({ 
+      res.status(200).json({
         message: 'Login successed',
         data: true,
         token: token,
