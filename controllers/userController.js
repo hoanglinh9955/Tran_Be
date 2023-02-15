@@ -28,6 +28,7 @@ exports.register = async (req, res, next) => {
         data: false
       })
     }
+    // hash is a password hash change hash
     const user = new User(name, email, hash, phone_number, "USER", 1);
 
     const result = await user.findOne(email)
@@ -117,11 +118,13 @@ exports.login = async (req, res, next) => {
         'somesupersecretsecret',
         { expiresIn: '1h' }
       );
+
       res.status(200).json({
         message: 'Login successed',
         data: true,
         token: token,
-        userId: loadedUser.id.toString()
+        userId: loadedUser.id.toString(),
+        role: loadedUser.role
       });
       return;
     })
