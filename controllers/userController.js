@@ -1,12 +1,12 @@
-const { User } = require('../models/user');
-
+const  User = require('../models/user');
+const Company = require('../models/company');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator/check');
 
 const sendgrid = require('@sendgrid/mail');
 
-const API_KEY = "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"
+const API_KEY = "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";
 
 sendgrid.setApiKey(API_KEY);
 
@@ -29,26 +29,35 @@ exports.register = async (req, res, next) => {
       })
     }
     // hash is a password hash change hash
-    const user = new User(name, email, hash, phone_number, "USER", 1);
+    // turn off hash function 
+    //const user = new User(name, email, hash, phone_number, "USER", 1);
+    const user = new User(name, email, password, phone_number, "USER", 1);
 
     const result = await user.findOne(email)
       .then(result => { return result })
       .catch(err => console.log(err))
-
-    // if (result) {
-    //   res.status(500).json({
-    //     error: err,
-    //     message: 'some thing went wrong, invalid input'
-    //   }); 
-    // }
-    console.log(result.recordset[0])
-    if (result.recordset[0]) {
+    //find mail in company email
+    const com = new Company();
+    const findCom = await com.findOne(email)
+      .then(result => { return result })
+      .catch(err => console.log(err))
+    console.log('company test')
+    if(findCom.recordset.length > 0){
+        res.status(401).json({
+          message: 'User with that email is Company email. Please use another email',
+          data: false
+        });
+        return
+    }
+    
+    if (result.recordset.length > 0) {
       res.status(401).json({
         message: 'User with that email exist. Please use another email',
         data: false
       });
       return
-    } else {
+    } 
+    else {
       const rs = await user.save()
         .then(result => { return result })
         .catch(err => console.log(err))
@@ -59,20 +68,22 @@ exports.register = async (req, res, next) => {
           data: false
         })
       }
+     
       if (rs) {
-        return res.status(200).json({
-          message: "Create User Success",
-          data: true
+        //get userid created
+        let findUser = await user.findOne(email)
+          .then(result => { return result })
+          .catch(err => console.log(err))
+        //return res success to client
+          return res.status(200).json({
+            message: "Create User Success",
+            data: true,
+            userId: findUser.recordset[0].id
         })
       }
     }
   });
 }
-
-
-
-
-
 
 exports.login = async (req, res, next) => {
   const errors = validationResult(req);
@@ -83,55 +94,147 @@ exports.login = async (req, res, next) => {
     next(error);
     return;
   }
+  
   const { email, password } = req.body;
   const user = new User();
-
-
-  const result = await user.findOne(email)
+  const company = new Company();
+  //find user email
+  const findUser = await user.findOne(email)
+    .then(result => { return result })
+    .catch(err => console.log(err))
+  // find company email
+    const findCom = await company.findOne(email)
     .then(result => { return result })
     .catch(err => console.log(err))
 
-  if (result.recordset[0] === undefined) {
+  if (!(findUser.recordset.length > 0|| findCom.recordset.length > 0)) {
     res.status(400).json({
-      message: 'User with that email does not exist. Please signup',
+      message: 'Email does not exist. Please signup',
       data: false
     });
     return;
   }
-
-  loadedUser = result.recordset[0];
-  console.log(loadedUser);
-
-  return bcrypt.compare(password, loadedUser.password)
-    .then(isEqual => {
-      if (!isEqual) {
-        const error = new Error('Wrong password!');
-        error.statusCode = 400;
-        error.data = false;
-        throw error;
+  
+  loadedUser = findUser.recordset[0];
+  loadedCom = findCom.recordset[0]
+  try {
+    if(loadedUser === undefined){
+      console.log(loadedCom)
+      // User email is undefiled
+      // company is correct
+      try {
+        if(!(password === loadedCom.password)){
+          const error = new Error('Wrong password!');
+              error.statusCode = 400;
+              error.data = false;
+              throw error;
+    
+        } 
+        console.log(loadedCom)
+        if(loadedCom){
+          const token = jwt.sign(
+            {
+              email: loadedCom.email,
+              companyId: loadedCom.id.toString()
+            },
+            'somesupersecretsecret',
+            { expiresIn: '1h' }
+          );
+      
+          res.status(200).json({
+            message: 'Login successed',
+            data: true,
+            token: token,
+            companyId: loadedCom.id.toString(),
+            role: loadedCom.role,
+            status: loadedCom.status
+          });
+          return;
+        
+        }     
+      } catch (err) {
+        if(!err.statusCode){
+          err.statusCode = 500;
+        }
+        next(err)
       }
-      const token = jwt.sign(
-        {
-          email: loadedUser.email,
-          userId: loadedUser.id.toString()
-        },
-        'somesupersecretsecret',
-        { expiresIn: '1h' }
-      );
-
-      res.status(200).json({
-        message: 'Login successed',
-        data: true,
-        token: token,
-        userId: loadedUser.id.toString(),
-        role: loadedUser.role
-      });
-      return;
-    })
-    .catch(err => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
+    }
+   if(loadedCom === undefined){
+    console.log(loadedUser);
+      // company email is undefiled
+      // user is correct
+      try {
+        if(!(password === loadedUser.password)){
+          const error = new Error('Wrong password!');
+              error.statusCode = 400;
+              error.data = false;
+              throw error;
+    
+        }
+        if(loadedUser){
+          const token = jwt.sign(
+            {
+              email: loadedUser.email,
+              userId: loadedUser.id.toString()
+            },
+            'somesupersecretsecret',
+            { expiresIn: '1h' }
+          );
+      
+          res.status(200).json({
+            message: 'Login successed',
+            data: true,
+            token: token,
+            userId: loadedUser.id.toString(),
+            role: loadedUser.role,
+            status: loadedUser.status
+          });
+          return;
+        
+        }     
+      } catch (err) {
+        if(!err.statusCode){
+          err.statusCode = 500;
+        }
+        next(err)
       }
-      next(err);
-    });
+    }
+  } catch (error) {
+    console.log('Err: ', error)
+  }
+  
+  
+  
+  // return bcrypt.compare(password, loadedUser.password)
+  //   .then(isEqual => {
+  //     if (!isEqual) {
+  //       const error = new Error('Wrong password!');
+  //       error.statusCode = 400;
+  //       error.data = false;
+  //       throw error;
+  //     }
+  //     const token = jwt.sign(
+  //       {
+  //         email: loadedUser.email,
+  //         userId: loadedUser.id.toString()
+  //       },
+  //       'somesupersecretsecret',
+  //       { expiresIn: '1h' }
+  //     );
+
+  //     res.status(200).json({
+  //       message: 'Login successed',
+  //       data: true,
+  //       token: token,
+  //       userId: loadedUser.id.toString(),
+  //       role: loadedUser.role
+  //     });
+  //     return;
+  //   })
+  //   .catch(err => {
+  //     if (!err.statusCode) {
+  //       err.statusCode = 500;
+  //     }
+  //     next(err);
+  //   });
 }

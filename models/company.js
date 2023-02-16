@@ -1,14 +1,15 @@
 const mssql = require('mssql');
 const config = require('../config');
-class User {
-    constructor(name, email, password, phone_number, role, status) {
+class Company {
+    constructor(name, email, password, role, status, address, hotline) {
 
         this.name = name;
         this.email = email;
         this.password = password;
-        this.phone_number = phone_number;
         this.role = role;
         this.status = status;
+        this.address = address;
+        this.hotline = hotline
     }
 
      async save() {
@@ -21,10 +22,11 @@ class User {
                 .input('name', mssql.VarChar, this.name)
                 .input('email', mssql.VarChar, this.email)
                 .input('password', mssql.VarChar, this.password)
-                .input('phone_number', mssql.Int, parseInt(this.phone_number))
+                .input('hotline', mssql.Int, parseInt(this.hotline))
                 .input('role', mssql.VarChar, this.role)
                 .input('status', mssql.Int, this.status)
-                .query('INSERT INTO user_ (name, email, password, phone_number, role, status) VALUES (@name, @email, @password, @phone_number, @role, @status)');
+                .input('address', mssql.VarChar, this.address)
+                .query('INSERT INTO company (name, email, password, role, status, address, hotline) VALUES (@name, @email, @password, @role, @status, @address, @hotline)');
 
               console.dir(result)
             // Return success
@@ -42,7 +44,7 @@ class User {
             // Get the user from the database
             const result = await pool.request()
             .input('email', mssql.VarChar, email)
-            .query('SELECT * FROM user_ WHERE email = @email');
+            .query('SELECT * FROM company WHERE email = @email');
             
             return result;
             
@@ -51,8 +53,9 @@ class User {
         }
 
         }
-        
-        
+         
     }
 
-module.exports = User;
+module.exports = Company;
+
+

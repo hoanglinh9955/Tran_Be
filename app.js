@@ -23,9 +23,11 @@ app.use(cors({
 //Router
 const userRoutes = require("./routes/userRoutes");
 const tripRoutes = require('./routes/tripRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/api', userRoutes);
 app.use('/api', tripRoutes);
+app.use('/api/admin', adminRoutes)
 
 
 //error handle for app

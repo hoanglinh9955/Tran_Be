@@ -1,10 +1,14 @@
-Create database Transssssa1;
+Create database transportation;
 go
-use Transssssa1;
+use transportation;
 go
 create table company(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    name VARCHAR(50),
+   email VARCHAR(50),
+   password VARCHAR(250),
+   role VARCHAR(50),
+   status INT,
    address VARCHAR(100),
    hotline INT
 );
@@ -13,8 +17,7 @@ create table route(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    company_id INT FOREIGN KEY REFERENCES company(id),
    depart VARCHAR(100),
-   destination VARCHAR(100),
-   depart_date VARCHAR(50)
+   destination VARCHAR(100)
 );
 go
 create table trip(
@@ -23,7 +26,8 @@ create table trip(
    begin_time VARCHAR(50),
    end_time VARCHAR(50),
    distance int,
-   price int
+   price int,
+   depart_date VARCHAR(50)
 );
 go
 create table user_(
@@ -61,6 +65,7 @@ create table cell(
    transportation_id INT FOREIGN KEY REFERENCES transportation(id),
    sit_number INT
 );
+
 go
 INSERT INTO company(name, address, hotline)
 VALUES ('thanh buoi', 'ha noi', '123456789');
@@ -71,26 +76,26 @@ go
 INSERT INTO company(name, address, hotline)
 VALUES ('khang dien', 'tpchm', '123456789');
 go
-INSERT INTO route(company_id, depart, destination, depart_date)
-VALUES ('1', 'dalat', 'tphcm', '2-2-2022')
+INSERT INTO route(company_id, depart, destination)
+VALUES ('1', 'dalat', 'tphcm')
 go
-INSERT INTO route(company_id, depart, destination, depart_date)
-VALUES ('2', 'tphcm', 'dalat', '1-2-2022')
+INSERT INTO route(company_id, depart, destination)
+VALUES ('2', 'tphcm', 'dalat')
 go
-INSERT INTO route(company_id, depart, destination, depart_date)
-VALUES ('3', 'tphcm', 'nhatrang', '3-4-2023')
+INSERT INTO route(company_id, depart, destination)
+VALUES ('3', 'tphcm', 'nhatrang')
 go
-INSERT INTO trip(route_id, distance, price, begin_time, end_time)
-VALUES ('1', '556','123','10:00', '11:00')
+INSERT INTO trip(route_id, distance, price, begin_time, end_time, depart_date)
+VALUES ('1', '556','123','10:00', '11:00', '2022-01-01')
 go
-INSERT INTO trip(route_id, distance, price, begin_time, end_time)
-VALUES ('2', '666', '333', '05:30' , '07:30')
+INSERT INTO trip(route_id, distance, price, begin_time, end_time, depart_date)
+VALUES ('2', '666', '333', '05:30' , '07:30', '2022-02-01')
 go
-INSERT INTO trip(route_id, distance, price, begin_time, end_time)
-VALUES ('2', '666', '333', '05:30' , '07:30')
+INSERT INTO trip(route_id, distance, price, begin_time, end_time, depart_date)
+VALUES ('2', '666', '333', '05:30' , '07:30', '2022-04-01')
 go
-INSERT INTO trip(route_id, distance, price, begin_time, end_time)
-VALUES ('3', '66', '333', '05:30' , '07:30')
+INSERT INTO trip(route_id, distance, price, begin_time, end_time, depart_date)
+VALUES ('3', '66', '333', '05:30' , '07:30', '2022-04-01')
 go
 INSERT INTO  transportation(trip_id, image_path, name, type)
 VALUES ('1', 'example/path', 'limo','16')
@@ -103,6 +108,8 @@ VALUES ('3', 'example/path', 'xe giuong nam','45')
 go
 INSERT INTO  transportation(trip_id, image_path, name, type)
 VALUES ('4', 'example/path', 'xe giuong nam','45')
+
+
 
 
 

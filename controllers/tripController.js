@@ -12,6 +12,14 @@ exports.getTrips = async (req, res, next) => {
     .then(result => { return result })
     .catch(err => console.log(err))
 
+  if(result.recordset.length == 0){
+    res.status(403).json({
+      message: "Don't Have Trip To Get",
+      data: false
+    })
+    return
+  }
+
   if (result.recordset) {
     res.status(200).json({
       message: "Get Trip Success",
@@ -22,14 +30,22 @@ exports.getTrips = async (req, res, next) => {
   }
 }
 
-exports.getDepart = async (req, res, next) => {
+exports.getRoutes = async (req, res, next) => {
   const trips = new Trips();
 
-  const result = await trips.getDepart()
+  const result = await trips.getRoutes()
     .then(result => {return result})
     .catch(err => console.log(err))
 
     console.log(result)
+    if(result.recordset.length == 0){
+      res.status(403).json({
+        message: "Don't Have Route To Get",
+        data: false
+      })
+      return
+    }
+
     if(result.recordset){
       res.status(200).json({
         message:'get depart success',
