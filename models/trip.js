@@ -18,11 +18,6 @@ class Trip {
     this.type = type;
   }
 
-
-
-
-
-
   async getTrips(depart, destination, depart_date) {
     try {
 
@@ -84,7 +79,7 @@ class Trip {
       console.error('Error:', err);
     }
   }
-
+  
 }
 
 module.exports = Trip;

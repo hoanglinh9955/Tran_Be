@@ -24,11 +24,12 @@ app.use(cors({
 const userRoutes = require("./routes/userRoutes");
 const tripRoutes = require('./routes/tripRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const companyRoutes = require('./routes/companyRoutes');
 
 app.use('/api', userRoutes);
 app.use('/api', tripRoutes);
 app.use('/api/admin', adminRoutes)
-
+app.use('/api/company', companyRoutes)
 
 //error handle for app
 app.use((error, req, res, next) => {
