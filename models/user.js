@@ -18,11 +18,11 @@ class User {
 
             // Insert the user into the database
             const result = await pool.request()
-                .input('name', mssql.VarChar, this.name)
-                .input('email', mssql.VarChar, this.email)
-                .input('password', mssql.VarChar, this.password)
+                .input('name', mssql.NVarChar, this.name)
+                .input('email', mssql.NVarChar, this.email)
+                .input('password', mssql.NVarChar, this.password)
                 .input('phone_number', mssql.Int, parseInt(this.phone_number))
-                .input('role', mssql.VarChar, this.role)
+                .input('role', mssql.NVarChar, this.role)
                 .input('status', mssql.Int, this.status)
                 .query('INSERT INTO user_ (name, email, password, phone_number, role, status) VALUES (@name, @email, @password, @phone_number, @role, @status)');
 
@@ -41,7 +41,7 @@ class User {
     
             // Get the user from the database
             const result = await pool.request()
-            .input('email', mssql.VarChar, email)
+            .input('email', mssql.NVarChar, email)
             .query('SELECT * FROM user_ WHERE email = @email');
             
             return result;
@@ -51,8 +51,53 @@ class User {
         }
 
         }
+        async getAllUser() {
+            try {
+                // Connect to the database
+                const pool = await mssql.connect(config.sql);
         
+                // Get the user from the database
+                const result = await pool.request()
+                .query('SELECT * FROM user_');
+                
+                return result;
+                
+            } catch (err) {
+                console.log(err)
+            }
+        } 
+        async banUserByEmail(email) {
+            try {
+                // Connect to the database
+                const pool = await mssql.connect(config.sql);
         
+                // Get the user from the database
+                const result = await pool.request()
+                .input('email', mssql.NVarChar, email)
+                .query('UPDATE user_ SET status = 0 WHERE email = @email');
+                
+                return result;
+                
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        async unBanUserByEmail(email) {
+            try {
+                // Connect to the database
+                const pool = await mssql.connect(config.sql);
+        
+                // Get the user from the database
+                const result = await pool.request()
+                .input('email', mssql.NVarChar, email)
+                .query('UPDATE user_ SET status = 1 WHERE email = @email');
+                
+                return result;
+                
+            } catch (err) {
+                console.log(err)
+            }
+        }
     }
 
 module.exports = User;

@@ -13,8 +13,9 @@ sendgrid.setApiKey(API_KEY);
 exports.register = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Email Invalid.');
-    error.statusCode = 422;
+    const error = new Error('Invalid Input');
+    error.statusCode = 200;
+    error.message = errors.errors;
     error.data = false;
     next(error);
     return;
@@ -23,7 +24,7 @@ exports.register = async (req, res, next) => {
   bcrypt.hash(password, 10, async (err, hash) => {
     if (err) {
       console.log("this is err")
-      return res.status(500).json({
+      return res.status(200).json({
         message: 'some thing went wrong, invalid input',
         data: false
       })
@@ -43,7 +44,7 @@ exports.register = async (req, res, next) => {
       .catch(err => console.log(err))
     console.log('company test')
     if(findCom.recordset.length > 0){
-        res.status(401).json({
+        res.status(200).json({
           message: 'User with that email is Company email. Please use another email',
           data: false
         });
@@ -51,7 +52,7 @@ exports.register = async (req, res, next) => {
     }
     
     if (result.recordset.length > 0) {
-      res.status(401).json({
+      res.status(200).json({
         message: 'User with that email exist. Please use another email',
         data: false
       });
@@ -88,8 +89,9 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Email Invalid.');
-    error.statusCode = 422;
+    const error = new Error('Invalid Input');
+    error.statusCode = 200;
+    error.message = errors.errors;
     error.data = false;
     next(error);
     return;
@@ -108,7 +110,7 @@ exports.login = async (req, res, next) => {
     .catch(err => console.log(err))
 
   if (!(findUser.recordset.length > 0|| findCom.recordset.length > 0)) {
-    res.status(400).json({
+    res.status(200).json({
       message: 'Email does not exist. Please signup',
       data: false
     });
@@ -124,8 +126,8 @@ exports.login = async (req, res, next) => {
       // company is correct
       try {
         if(!(password === loadedCom.password)){
-          const error = new Error('Wrong password!');
-              error.statusCode = 400;
+          const error = new Error('Sai Mật Khẩu ');
+              error.statusCode = 200;
               error.data = false;
               throw error;
     
@@ -154,7 +156,7 @@ exports.login = async (req, res, next) => {
         }     
       } catch (err) {
         if(!err.statusCode){
-          err.statusCode = 500;
+          err.statusCode = 200;
         }
         next(err)
       }
@@ -166,7 +168,7 @@ exports.login = async (req, res, next) => {
       try {
         if(!(password === loadedUser.password)){
           const error = new Error('Wrong password!');
-              error.statusCode = 400;
+              error.statusCode = 200;
               error.data = false;
               throw error;
     
@@ -194,7 +196,7 @@ exports.login = async (req, res, next) => {
         }     
       } catch (err) {
         if(!err.statusCode){
-          err.statusCode = 500;
+          err.statusCode = 200;
         }
         next(err)
       }
@@ -238,3 +240,4 @@ exports.login = async (req, res, next) => {
   //     next(err);
   //   });
 }
+

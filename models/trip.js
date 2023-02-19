@@ -29,21 +29,21 @@ class Trip {
       // create connection pool
       const pool = await mssql.connect(config.sql);
       const query = `
-    SELECT t.begin_time, t.end_time, t.distance, t.price, 
-        tr.name as transport_name, tr.image_path, tr.type,
-        r.depart, r.destination, t.depart_date,
-        c.name as company_name, c.address, c.hotline
-    FROM trip t 
-        JOIN route r ON t.route_id = r.id
-        JOIN company c ON r.company_id = c.id
-        JOIN transportation tr ON tr.trip_id = t.id
-    WHERE r.depart = @depart AND r.destination = @destination AND t.depart_date = @depart_date `;
+      SELECT t.begin_time, t.end_time, t.distance, t.price, 
+          tr.name as transport_name, tr.image_path, tr.type,
+          r.depart, r.destination, t.depart_date,
+        c.name as company_name, c.address, c.hotline, c.email, c.status, c.role
+      FROM trip t 
+          JOIN route r ON t.route_id = r.id
+          JOIN company c ON r.company_id = c.id
+          JOIN transportation tr ON tr.trip_id = t.id
+      WHERE r.depart = @depart AND r.destination = @destination AND t.depart_date = @depart_date `;
 
       // create a new request object
       const result = await pool.request()
-        .input('depart', mssql.VarChar, depart)
-        .input('destination', mssql.VarChar, destination)
-        .input('depart_date', mssql.VarChar, depart_date)
+        .input('depart', mssql.NVarChar, depart)
+        .input('destination', mssql.NVarChar, destination)
+        .input('depart_date', mssql.NVarChar, depart_date)
         .query(query)
 
       console.log(result.recordset)

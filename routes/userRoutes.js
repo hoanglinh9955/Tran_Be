@@ -6,12 +6,20 @@ const router = express.Router();
 
 //Route to handle user registration
 router.post("/register", 
-  check("email").isEmail()
+             [check("email").isEmail().withMessage('Invalid Email'),
+              check('password').isLength({ min: 6 }).withMessage('Invalid Password'),
+              check('phone_number').isLength({ min: 6 }).withMessage('Phone Number Less Than 6'),
+              check('name').notEmpty().withMessage('User Name is Empty')
+            ]
 , userController.register);
   
 //Route to handle user login
 router.post("/login", 
-  check("email").isEmail(),
+             [check("email").isEmail().withMessage('Invalid Email'),
+              check('password').isLength({ min: 6 }).withMessage('Invalid Password')
+            ],
  userController.login);
+
+
 
 module.exports = router;

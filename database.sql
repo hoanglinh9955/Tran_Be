@@ -4,39 +4,39 @@ use transportation;
 go
 create table company(
    id INT PRIMARY KEY NOT NULL identity(1,1),
-   name VARCHAR(50),
-   email VARCHAR(50),
-   password VARCHAR(250),
-   role VARCHAR(50),
+   name NVARCHAR(50),
+   email NVARCHAR(50),
+   password NVARCHAR(250),
+   role NVARCHAR(50),
    status INT,
-   address VARCHAR(100),
+   address NVARCHAR(100),
    hotline INT
 );
 go
 create table route(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    company_id INT FOREIGN KEY REFERENCES company(id),
-   depart VARCHAR(100),
-   destination VARCHAR(100)
+   depart NVARCHAR(100),
+   destination NVARCHAR(100)
 );
 go
 create table trip(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    route_id INT FOREIGN KEY REFERENCES route(id),
-   begin_time VARCHAR(50),
-   end_time VARCHAR(50),
+   begin_time NVARCHAR(50),
+   end_time NVARCHAR(50),
    distance int,
    price int,
-   depart_date VARCHAR(50)
+   depart_date NVARCHAR(50)
 );
 go
 create table user_(
    id INT PRIMARY KEY NOT NULL identity(1,1),
-   name VARCHAR(50),
-   email VARCHAR(50),
-   password VARCHAR(250),
+   name NVARCHAR(50),
+   email NVARCHAR(50),
+   password NVARCHAR(250),
    phone_number int,
-   role VARCHAR(20),
+   role NVARCHAR(20),
    status int
 );
 go
@@ -44,8 +44,8 @@ create table transportation(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    trip_id INT FOREIGN KEY REFERENCES trip(id),
    type int,
-   image_path VARCHAR(50),
-   name VARCHAR(50)
+   image_path NVARCHAR(50),
+   name NVARCHAR(50)
 );
 go
 create table ticket(
@@ -61,20 +61,18 @@ create table ticket_detail(
 );
 go
 create table cell(
-   id INT PRIMARY KEY NOT NULL identity(1,1),
    transportation_id INT FOREIGN KEY REFERENCES transportation(id),
    sit_number INT
 );
-
 go
-INSERT INTO company(name, address, hotline)
-VALUES ('thanh buoi', 'ha noi', '123456789');
+INSERT INTO company(name, address, hotline, email, role, status, password)
+VALUES ('thanh buoi', 'ha noi', '1234567890', 'thanhbuoi@gmail.com', 'COMPANY', 1, '123456');
 go
-INSERT INTO company(name, address, hotline)
-VALUES ('phuong trang', 'tpchm', '123456789');
+INSERT INTO company(name, address, hotline, email, role, status, password)
+VALUES ('phuong trang', 'ha noi', '1234567890', 'phuongtrang@gmail.com', 'COMPANY', 1, '123456');
 go
-INSERT INTO company(name, address, hotline)
-VALUES ('khang dien', 'tpchm', '123456789');
+INSERT INTO company(name, address, hotline, email, role, status, password)
+VALUES ('khang dien', 'ha noi', '1234567890', 'khangdien@gmail.com', 'COMPANY', 1, '123456');
 go
 INSERT INTO route(company_id, depart, destination)
 VALUES ('1', 'dalat', 'tphcm')
@@ -108,9 +106,19 @@ VALUES ('3', 'example/path', 'xe giuong nam','45')
 go
 INSERT INTO  transportation(trip_id, image_path, name, type)
 VALUES ('4', 'example/path', 'xe giuong nam','45')
-
-
-
-
-
+go
+INSERT INTO  user_(name, email, password, phone_number, role, status)
+VALUES ('user1', 'user1@gmail.com', '123456','123456789', 'USER', 1)
+go
+INSERT INTO  user_(name, email, password, phone_number, role, status)
+VALUES ('user2', 'user2@gmail.com', '123456','123456789', 'USER', 1)
+go
+INSERT INTO  user_(name, email, password, phone_number, role, status)
+VALUES ('user3', 'user3@gmail.com', '123456','123456789', 'USER', 1)
+go
+INSERT INTO  user_(name, email, password, phone_number, role, status)
+VALUES ('user4', 'user4@gmail.com', '123456','123456789', 'USER', 1)
+go
+INSERT INTO  user_(name, email, password, phone_number, role, status)
+VALUES ('user5', 'user5@gmail.com', '123456','123456789', 'USER', 1)
 
