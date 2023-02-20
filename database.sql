@@ -121,4 +121,7 @@ VALUES ('user4', 'user4@gmail.com', '123456','123456789', 'USER', 1)
 go
 INSERT INTO  user_(name, email, password, phone_number, role, status)
 VALUES ('user5', 'user5@gmail.com', '123456','123456789', 'USER', 1)
+go
+INSERT INTO  user_(name, email, password, phone_number, role, status)
+VALUES ('admin', 'admin@gmail.com', '123456','123456789', 'ADMIN', 1)
 
