@@ -100,6 +100,26 @@ class Company {
             console.log(err)
         }
     }
+    async updateCompany(name, email, hotline, address, status) {
+        try {
+            // Connect to the database
+            const pool = await mssql.connect(config.sql);
+    
+            // Get the user from the database
+            const result = await pool.request()
+            .input('email', mssql.NVarChar, email)
+            .input('name', mssql.NVarChar, name)
+            .input('hotline', mssql.Int, hotline)
+            .input('address', mssql.NVarChar, address)
+            .input('status', mssql.Int, status)
+            .query('UPDATE company SET status = @status, hotline = @hotline, address = @address, name = @name WHERE email = @email');
+            
+            return result;
+            
+        } catch (err) {
+            console.log(err)
+        }
+    }
     
     }
 

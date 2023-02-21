@@ -7,9 +7,9 @@ const { validationResult } = require('express-validator/check');
 exports.getRouteByComId = async (req, res, next) => {
     
     const trips = new Trips();
-    const comid = req.body.comid;
+    const company_id = req.body.company_id;
 
-  const result = await trips.getRoutesByComId(comid)
+  const result = await trips.getRoutesByComId(company_id)
     .then(result => { return result })
     .catch(err => console.log(err))
 
@@ -30,4 +30,18 @@ exports.getRouteByComId = async (req, res, next) => {
     })
     return
   }
+}
+
+exports.createTripByCompany = async (req, res, next) => {
+    
+  const trips = new Trips();
+  
+  const {company_id, depart, destination, depart_date, distance, price, end_time, begin_time, transport_name, image_path, type} = req.body
+
+const result = await trips.createTripByCompany(depart, destination, company_id, depart_date, distance, price, end_time, begin_time, transport_name, image_path, type)
+  .then(result => { return result })
+  .catch(err => console.log(err))
+
+console.log(result)
+
 }

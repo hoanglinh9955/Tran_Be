@@ -66,7 +66,7 @@ class Trip {
   async getRoutesByComId(com_id) {
     try {
       const pool = await mssql.connect(config.sql);
-      let query = `select route.depart, route.destination 
+      let query = `select route.depart, route.destination, route.id
                     from route join company on (route.company_id = company.id)
                     where company.id = @company_id `;
       const result = await pool.request()
@@ -79,7 +79,96 @@ class Trip {
       console.error('Error:', err);
     }
   }
-  
-}
+  async createTripByCompany(depart, destination, company_id, depart_date, distance, price, end_time, begin_time, transport_name, image_path, type) {
+    try {
+      // Connect to the database
+      const pool = await mssql.connect(config.sql);
+     
+      //begin transaction
+      const transaction = await new mssql.Transaction(pool);
+      await transaction.begin();
 
+      //check route if it exist.
+      let query1 =`select route.id from route where route.company_id = @company_id and route.depart= @depart and route.destination = @destination` ;
+      const checkRouteExist = await transaction.request()
+        .input('company_id', mssql.Int, parseInt(company_id))
+        .input('depart', mssql.NVarChar, depart)
+        .input('destination', mssql.NVarChar, destination)
+        .query(query1)
+        console.log(checkRouteExist)
+      //Insert a new route
+      // define route 
+     
+     if(checkRouteExist.rowsAffected[1] == 0){
+        let query2 = `INSERT INTO route (company_id, depart, destination) VALUES 
+          (@company_id, @depart, @destination);
+          SELECT SCOPE_IDENTITY() AS route_id;`
+          var route = await transaction.request()
+          .input('company_id', mssql.Int, parseInt(company_id))
+          .input('depart', mssql.NVarChar, depart)
+          .input('destination', mssql.NVarChar, destination)
+          .query(query2)
+          console.log(route)
+          
+      }
+      
+  
+      // Insert a new trip
+      let query3 = `INSERT INTO trip (route_id, begin_time, end_time, distance, price, depart_date) 
+                    VALUES (@route_id, @begin_time, @end_time, @distance, @price, @depart_date);
+                    SELECT SCOPE_IDENTITY() AS trip_id;`
+                    
+      const trip = await transaction.request()
+          .input('route_id', mssql.Int, route.recordset[0].route_id)
+          .input('begin_time', mssql.NVarChar, begin_time)
+          .input('end_time', mssql.NVarChar, end_time)
+          .input('distance', mssql.Int, distance)
+          .input('price', mssql.Int, price)
+          .input('depart_date', mssql.NVarChar, depart_date)
+          .query(query3)
+
+      console.log(trip)
+
+      // Insert a new transportation
+      let query4 = `INSERT INTO transportation (trip_id, type, image_path, name) 
+                    VALUES (@trip_id, @type, @image_path, @name);
+                    SELECT SCOPE_IDENTITY() AS transportation_id; `
+                    
+      const transportation = await transaction.request()
+          .input('trip_id', mssql.Int, trip.recordset[0].trip_id)
+          .input('type', mssql.Int, type)
+          .input('image_path', mssql.NVarChar, image_path)
+          .input('name', mssql.NVarChar, transport_name)
+          .query(query4)
+      console.log(transportation)
+
+      await transaction.commit();
+
+      if(checkRouteExist.recordset === undefined){
+        return {
+          route, trip, transportation
+        }
+      }else{
+        return {
+          checkRouteExist, trip, transportation
+        }
+
+      }
+
+      // Insert cells for the transportation
+      // const cell = await sql.query`DECLARE @counter INT = 1;
+      //   WHILE @counter <= 50
+      //   BEGIN
+      //     INSERT INTO cell (transportation_id, sit_number) VALUES (${transportation.recordset[0].transportation_id}, @counter);
+      //     SET @counter = @counter + 1;
+      //   END;`;
+  
+      // console.log(`New trip created with ID ${trip.recordset[0].trip_id}`);
+    
+    } catch (err) {
+      console.error(err);
+      transaction.rollback();
+    }
+}
+}
 module.exports = Trip;

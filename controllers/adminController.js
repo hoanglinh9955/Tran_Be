@@ -312,3 +312,49 @@ if (result.rowsAffected > 0) {
   })
   return
 }}
+
+
+exports.updateCompany = async (req, res, next) => {
+  const errors = validationResult(req);
+  console.log(errors.errors)
+    if (!errors.isEmpty()) {
+      const error = new Error('invalid input');
+      error.statusCode = 200;
+      error.data = false;
+      error.message = errors.errors
+      next(error);
+      return;
+    }
+  const company = new Company();
+  const {email, name, hotline, address, status} = req.body
+
+  const findCom = await company.findOne(email)
+  .then(result => { return result })
+  .catch(err => console.log(err))
+
+  if(findCom.rowsAffected[0] == 0){
+    return res.status(200).json({
+      message: "Email Doesn't Exist",
+      data: false
+  })
+}
+  const result = await company.updateCompany(name, email, hotline, address, status)
+  .then(result => { return result })
+  .catch(err => console.log(err))
+
+console.log(result)
+if (result.rowsAffected == 0) {
+  res.status(200).json({
+    message: "Update Company False",
+    data: false
+  })
+  return
+}
+
+if (result.rowsAffected > 0) {
+  res.status(200).json({
+    message: 'Update Company Success',
+    data: true,
+  })
+  return
+}}
