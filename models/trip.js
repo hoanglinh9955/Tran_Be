@@ -84,13 +84,9 @@ class Trip {
       // Connect to the database
       const pool = await mssql.connect(config.sql);
      
-      //begin transaction
-      const transaction = await new mssql.Transaction(pool);
-      await transaction.begin();
-
       //check route if it exist.
       let query1 =`select route.id from route where route.company_id = @company_id and route.depart= @depart and route.destination = @destination` ;
-      const checkRouteExist = await transaction.request()
+      const checkRouteExist = await pool.request()
         .input('company_id', mssql.Int, parseInt(company_id))
         .input('depart', mssql.NVarChar, depart)
         .input('destination', mssql.NVarChar, destination)
@@ -103,7 +99,7 @@ class Trip {
         let query2 = `INSERT INTO route (company_id, depart, destination) VALUES 
           (@company_id, @depart, @destination);
           SELECT SCOPE_IDENTITY() AS route_id;`
-          var route = await transaction.request()
+          var route = await pool.request()
           .input('company_id', mssql.Int, parseInt(company_id))
           .input('depart', mssql.NVarChar, depart)
           .input('destination', mssql.NVarChar, destination)
@@ -118,7 +114,7 @@ class Trip {
                     VALUES (@route_id, @begin_time, @end_time, @distance, @price, @depart_date);
                     SELECT SCOPE_IDENTITY() AS trip_id;`
                     
-      const trip = await transaction.request()
+      const trip = await pool.request()
           .input('route_id', mssql.Int, route.recordset[0].route_id)
           .input('begin_time', mssql.NVarChar, begin_time)
           .input('end_time', mssql.NVarChar, end_time)
@@ -134,7 +130,7 @@ class Trip {
                     VALUES (@trip_id, @type, @image_path, @name);
                     SELECT SCOPE_IDENTITY() AS transportation_id; `
                     
-      const transportation = await transaction.request()
+      const transportation = await pool.request()
           .input('trip_id', mssql.Int, trip.recordset[0].trip_id)
           .input('type', mssql.Int, type)
           .input('image_path', mssql.NVarChar, image_path)
@@ -142,8 +138,7 @@ class Trip {
           .query(query4)
       console.log(transportation)
 
-      await transaction.commit();
-
+      
       if(checkRouteExist.recordset === undefined){
         return {
           route, trip, transportation
@@ -167,7 +162,6 @@ class Trip {
     
     } catch (err) {
       console.error(err);
-      transaction.rollback();
     }
 }
 }
