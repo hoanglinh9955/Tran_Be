@@ -74,7 +74,14 @@ class User {
                 // Get the user from the database
                 const result = await pool.request()
                 .input('email', mssql.NVarChar, email)
-                .query('UPDATE user_ SET status = 0 WHERE email = @email');
+                .query(`UPDATE user_
+                SET status = CASE status
+                              WHEN 0 THEN 1
+                              WHEN 1 THEN 0
+                            END
+                WHERE email = @email;
+              `);
+                
                 
                 return result;
                 
