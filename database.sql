@@ -57,7 +57,19 @@ create table ticket(
 go
 create table ticket_detail(
    ticket_id INT FOREIGN KEY REFERENCES ticket(id),
-   order_date DATE
+   order_date DATE,
+   company_name NVARCHAR(50),
+   depart NVARCHAR(100),
+   destination NVARCHAR(100),
+   depart_date NVARCHAR(250),
+   distance INT,
+   price: INT,
+   end_time NVARCHAR(50),
+   begin_time NVARCHAR(50),
+   transport_name NVARCHAR(100),
+   image_path NVARCHAR(250),
+   type INT,
+   user_name NVARCHAR(100)
 );
 go
 create table cell(

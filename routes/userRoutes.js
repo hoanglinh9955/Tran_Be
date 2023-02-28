@@ -20,6 +20,8 @@ router.post("/login",
             ],
  userController.login);
 
+ router.post('/user/orderTicket', userController.createOrder)
+
 
 
 module.exports = router;

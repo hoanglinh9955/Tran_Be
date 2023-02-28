@@ -1,4 +1,5 @@
 const  User = require('../models/user');
+const Ticket = require('../models/ticket');
 const Company = require('../models/company');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -241,3 +242,46 @@ exports.login = async (req, res, next) => {
   //   });
 }
 
+
+exports.createOrder = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Invalid Input');
+    error.statusCode = 200;
+    error.message = errors.errors;
+    error.data = false;
+    next(error);
+    return;
+  }
+  const {transport_id, user_id, quantity} = req.body;
+  const ticket = new Ticket();
+  const result = await ticket.orderTicket(transport_id, user_id, quantity)
+    .then(result => { return result })
+    .catch(err => console.log(err))
+
+  if(result === 'sitting_is_full'){
+    res.status(200).json({
+      message: "Please Order Another Trip, Ticket Of This Trip Is Sold Out !!!",
+      data: false
+    })
+    return
+  }
+    
+  console.log(result)
+  if (result === undefined) {
+    res.status(200).json({
+      message: "Order Ticket False",
+      data: false
+    })
+    return
+  }
+
+  if (result) {
+    res.status(200).json({
+      message: 'Order Ticket Success',
+      data: true,
+      ticket_id: result.recordset[0].ticket_id
+    })
+    return
+  }
+}

@@ -44,4 +44,24 @@ const result = await trips.createTripByCompany(depart, destination, company_id, 
 
 console.log(result)
 
+console.log(result === undefined)
+  if (result === undefined) {
+    res.status(200).json({
+      message: "Create Trip False",
+      data: false
+    })
+    return
+  }
+
+  if (result) {
+    res.status(200).json({
+      message: 'Create Trip Success',
+      data: true,
+      route_id: result.checkRouteExist === undefined ? result.route.recordset[0].route_id: result.checkRouteExist.recordset[0].id,
+      trip_id: result.trip.recordset[0].trip_id,
+      tran_id: result.transportation.recordset[0].transportation_id,
+    })
+    return
+  }
+
 }

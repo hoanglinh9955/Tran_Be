@@ -94,12 +94,12 @@ class Trip {
         console.log(checkRouteExist)
       //Insert a new route
       // define route 
-     
-     if(checkRouteExist.rowsAffected[1] == 0){
+     var route;
+     if(checkRouteExist.rowsAffected[0] == 0){
         let query2 = `INSERT INTO route (company_id, depart, destination) VALUES 
           (@company_id, @depart, @destination);
           SELECT SCOPE_IDENTITY() AS route_id;`
-          var route = await pool.request()
+          route = await pool.request()
           .input('company_id', mssql.Int, parseInt(company_id))
           .input('depart', mssql.NVarChar, depart)
           .input('destination', mssql.NVarChar, destination)
@@ -115,7 +115,7 @@ class Trip {
                     SELECT SCOPE_IDENTITY() AS trip_id;`
                     
       const trip = await pool.request()
-          .input('route_id', mssql.Int, route.recordset[0].route_id)
+          .input('route_id', mssql.Int, route === undefined ? checkRouteExist.recordset[0].route_id :route.recordset[0].route_id )
           .input('begin_time', mssql.NVarChar, begin_time)
           .input('end_time', mssql.NVarChar, end_time)
           .input('distance', mssql.Int, distance)
@@ -139,7 +139,7 @@ class Trip {
       console.log(transportation)
 
       
-      if(checkRouteExist.recordset === undefined){
+      if(checkRouteExist.rowsAffected[0] == 0){
         return {
           route, trip, transportation
         }
