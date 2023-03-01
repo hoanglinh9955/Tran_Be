@@ -38,8 +38,10 @@ class Ticket {
             .query(`SELECT type FROM transportation
             WHERE transportation.id = @transportation_id;`);
             console.log(getType.recordset[0].type)
-            if(16 === getType.recordset[0].type){
-                return 'sitting_is_full';
+            var r;
+            if(cell.recordset[0].row_count === getType.recordset[0].type){
+                r = 'sitting_is_full';
+                return r;
             }
             // Get the user from the database
             const ticket = await pool.request()
@@ -93,6 +95,15 @@ class Ticket {
                     VALUES (@ticket_id, @order_date, @companyName, @depart, @destination, @departDate, @distance, @price, @endTime, @beginTime, @tranportName, @image_path, @type, @user_name );    
 
                     `);
+                    const createCell = await pool.request()
+                    .input('t', mssql.INT, getTicketDetail.recordset[0].type)
+                    .input('transportation_id', mssql.INT, transport_id)
+                    .query(`
+                            INSERT INTO ticket_detail (ticket_id, order_date, company_name, depart, destination, depart_date, distance, price, end_time, begin_time, transport_name, image_path, type, user_name)
+                            VALUES (@ticket_id, @order_date, @companyName, @depart, @destination, @departDate, @distance, @price, @endTime, @beginTime, @tranportName, @image_path, @type, @user_name );    
+        
+                            `);
+            
 
             return ticket;
             

@@ -4,8 +4,14 @@ const { check, validationResult } = require("express-validator");
 
 const router = express.Router();
 
-router.post('/getRouteByComId', companyController.getRouteByComId);
+router.post('/getRoutesByComId', companyController.getRouteByComId);
 
-router.post('/createTripByCompany', companyController.createTripByCompany);
+router.post('/getTripsByComId', companyController.getTripsByComId);
+
+router.post('/createUpdateTripByCompany', companyController.createUpdateTripByCompany);
+
+router.post('/createUpdateRouteByComId' ,[  check('depart').notEmpty().withMessage('Depart is Empty.'),
+                                      check('destination').notEmpty().withMessage('Destination is Empty.'),
+                                    ],companyController.createUpdateRouteByComId)
 
 module.exports = router;

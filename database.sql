@@ -19,6 +19,11 @@ create table route(
    depart NVARCHAR(100),
    destination NVARCHAR(100)
 );
+go 
+create table route_name(
+   route_id INT FOREIGN KEY REFERENCES route(id),
+   route_name NVARCHAR(50)
+);
 go
 create table trip(
    id INT PRIMARY KEY NOT NULL identity(1,1),
@@ -52,7 +57,8 @@ create table ticket(
    id INT PRIMARY KEY NOT NULL identity(1,1),
    transportation_id INT FOREIGN KEY REFERENCES transportation(id),
    user_id INT FOREIGN KEY REFERENCES user_(id),
-   quantity INT
+   quantity INT,
+   status INT
 );
 go
 create table ticket_detail(
@@ -63,7 +69,7 @@ create table ticket_detail(
    destination NVARCHAR(100),
    depart_date NVARCHAR(250),
    distance INT,
-   price: INT,
+   price INT,
    end_time NVARCHAR(50),
    begin_time NVARCHAR(50),
    transport_name NVARCHAR(100),

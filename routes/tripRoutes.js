@@ -8,5 +8,6 @@ router.post('/getTrips', [ check('depart').notEmpty().withMessage('Depart is Emp
                            check('destination').notEmpty().withMessage('Destination is Empty.'),
                            check('depart_date').notEmpty().withMessage('Depart_Date is Empty.'),
                         ], tripController.getTrips)
+                        
 router.post('/getRoutes', tripController.getRoutes)
 module.exports = router;    
