@@ -155,7 +155,7 @@ if (result && result != 'route_exist') {
       res.status(200).json({
         message: 'Create Route Success',
         data: true,
-        trip_id: result.recordset[0].trip_id
+        trip_id: result.recordset[0].route_id
       })
       return
   }else{
@@ -164,8 +164,8 @@ if (result && result != 'route_exist') {
       data: true
     })
     return
+    }
   }
-}
 }
 exports.getTripsByComId = async (req, res, next) => {
   const errors = validationResult(req);
@@ -196,6 +196,43 @@ exports.getTripsByComId = async (req, res, next) => {
   if (result.recordset) {
     res.status(200).json({
       message: 'Get All trips Success',
+      data: true,
+      result: result.recordset
+    })
+    return
+  }
+}
+
+
+exports.getRouteNameByComId = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Invalid Input.');
+    error.statusCode = 200;
+    error.message = errors.errors;
+    error.data = false;
+    next(error);
+    return
+  }
+    const trips = new Trips();
+    const company_id = req.body.company_id;
+
+  const result = await trips.getRouteNameByComId(company_id)
+    .then(result => { return result })
+    .catch(err => console.log(err))
+
+  console.log(result.recordset)
+  if (result.recordset.length == 0) {
+    res.status(200).json({
+      message: "Don't Have Route Name To Show",
+      data: false
+    })
+    return
+  }
+
+  if (result.recordset) {
+    res.status(200).json({
+      message: 'Get All Route Name Success',
       data: true,
       result: result.recordset
     })

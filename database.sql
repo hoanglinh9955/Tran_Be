@@ -22,6 +22,7 @@ create table route(
 go 
 create table route_name(
    route_id INT FOREIGN KEY REFERENCES route(id),
+   company_id INT,
    route_name NVARCHAR(50)
 );
 go
@@ -100,6 +101,15 @@ VALUES ('2', 'tphcm', 'dalat')
 go
 INSERT INTO route(company_id, depart, destination)
 VALUES ('3', 'tphcm', 'nhatrang')
+go
+INSERT INTO route_name(route_id, company_id , route_name)
+VALUES ('1', '1', 'dalat - tphcm')
+go
+INSERT INTO route_name(route_id, company_id , route_name)
+VALUES ('2', '2', 'tphcm - dalat')
+go
+INSERT INTO route_name(route_id, company_id ,route_name)
+VALUES ('3', '3', 'tphcm - nhatrang')
 go
 INSERT INTO trip(route_id, distance, price, begin_time, end_time, depart_date)
 VALUES ('1', '556','123','10:00', '11:00', '2022-01-01')

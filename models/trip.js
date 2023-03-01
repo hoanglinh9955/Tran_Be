@@ -109,10 +109,11 @@ class Trip {
         
         //create new Route_Name 
         const route_name = depart + ' - ' + destination
-        let query5 = `INSERT INTO route_name (route_id, route_name) 
-                      VALUES (@route_id, @route_name);`
+        let query5 = `INSERT INTO route_name (route_id, company_id ,route_name) 
+                      VALUES (@route_id, @company_id, @route_name);`
         const create_route_name = await pool.request()
           .input('route_id', mssql.Int, route.recordset[0].route_id)
+          .input('company_id', mssql.Int, company_id)
           .input('route_name', mssql.NVarChar, route_name)
           .query(query5)
         console.log(create_route_name)
@@ -252,10 +253,11 @@ class Trip {
 
           //create new Route_Name 
         const route_name = depart + ' - ' + destination
-        let query5 = `INSERT INTO route_name (route_id, route_name) 
-                      VALUES (@route_id, @route_name);`
+        let query5 = `INSERT INTO route_name (route_id, company_id, route_name) 
+                      VALUES (@route_id, @company_id, @route_name);`
         const create_route_name = await pool.request()
           .input('route_id', mssql.Int, result.recordset[0].route_id)
+          .input('company_id', mssql.Int, com_id)
           .input('route_name', mssql.NVarChar, route_name)
           .query(query5)
         console.log(create_route_name)
@@ -309,6 +311,21 @@ class Trip {
                                 join trip on (route.id = trip.route_id)
                                 join transportation on (trip.id = transportation.trip_id)
                     where company.id = @company_id `;
+      const result = await pool.request()
+        .input('company_id', mssql.Int, com_id)
+        .query(query)
+
+      console.log(result)
+      return result
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+
+  async getRouteNameByComId(com_id) {
+    try {
+      const pool = await mssql.connect(config.sql);
+      let query = ` select * from route_name where company_id = @company_id `;
       const result = await pool.request()
         .input('company_id', mssql.Int, com_id)
         .query(query)

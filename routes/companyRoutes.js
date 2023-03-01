@@ -12,6 +12,8 @@ router.post('/createUpdateTripByCompany', companyController.createUpdateTripByCo
 
 router.post('/createUpdateRouteByComId' ,[  check('depart').notEmpty().withMessage('Depart is Empty.'),
                                       check('destination').notEmpty().withMessage('Destination is Empty.'),
-                                    ],companyController.createUpdateRouteByComId)
+                                    ],companyController.createUpdateRouteByComId);
+
+router.post('/getRoutesNameByComId', companyController.getRouteNameByComId);
 
 module.exports = router;
