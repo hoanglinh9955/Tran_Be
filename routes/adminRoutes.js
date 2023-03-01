@@ -28,6 +28,6 @@ router.post('/updateCompany', [check("email").isEmail().withMessage('Invalid Ema
                                 check('name').notEmpty().withMessage('Name Company Is Empty'),
                                 check('address').notEmpty().withMessage('Address Company Is Empty'),
                                 check('hotline').isLength({ min: 6 }).withMessage('Hotline is less than 6 number')
-                                                ] , adminController.updateCompany)
+                                                ] , adminController.updateCompany);
 
 module.exports = router;

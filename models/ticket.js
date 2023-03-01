@@ -26,24 +26,25 @@ class Ticket {
         try {
             // Connect to the database
             const pool = await mssql.connect(config.sql);
+           
             //check cell
             const cell = await pool.request()
             .input('transportation_id', mssql.INT, transport_id)
             .query(`SELECT COUNT(*) as row_count FROM cell
                     WHERE transportation_id = @transportation_id;`);
-            console.log(cell.recordset[0].row_count)
+        
             //get type of transport
             const getType = await pool.request()
             .input('transportation_id', mssql.INT, transport_id)
             .query(`SELECT type FROM transportation
             WHERE transportation.id = @transportation_id;`);
-            console.log(getType.recordset[0].type)
+         
             var r;
-            if(cell.recordset[0].row_count === getType.recordset[0].type){
+            if(cell.recordset[0].row_count > getType.recordset[0].type){
                 r = 'sitting_is_full';
                 return r;
             }
-            // Get the user from the database
+            
             const ticket = await pool.request()
             .input('transportation_id', mssql.INT, transport_id)
             .input('user_id', mssql.INT, user_id)
@@ -52,9 +53,9 @@ class Ticket {
                     VALUES (@transportation_id, @user_id, @quantity);
                     SELECT SCOPE_IDENTITY() AS ticket_id;
             `);
-
+            //get ticket detail
             console.log(ticket);
-            console.log(ticket.recordset[0].ticket_id)
+         
             const getTicketDetail = await pool.request()
             .input('transportation_id', mssql.INT, transport_id)
             .input('ticket_id', mssql.INT, ticket.recordset[0].ticket_id)
@@ -93,15 +94,16 @@ class Ticket {
             .query(`
                     INSERT INTO ticket_detail (ticket_id, order_date, company_name, depart, destination, depart_date, distance, price, end_time, begin_time, transport_name, image_path, type, user_name)
                     VALUES (@ticket_id, @order_date, @companyName, @depart, @destination, @departDate, @distance, @price, @endTime, @beginTime, @tranportName, @image_path, @type, @user_name );    
-
                     `);
+                    
                     const createCell = await pool.request()
-                    .input('t', mssql.INT, getTicketDetail.recordset[0].type)
+                    .input('type', mssql.INT, getTicketDetail.recordset[0].type)
                     .input('transportation_id', mssql.INT, transport_id)
-                    .query(`
-                            INSERT INTO ticket_detail (ticket_id, order_date, company_name, depart, destination, depart_date, distance, price, end_time, begin_time, transport_name, image_path, type, user_name)
-                            VALUES (@ticket_id, @order_date, @companyName, @depart, @destination, @departDate, @distance, @price, @endTime, @beginTime, @tranportName, @image_path, @type, @user_name );    
-        
+                    .input('array_sit_number', mssql.NVarChar, array_sit_number)
+                    .query(`DECLARE @sit_numbers NVARCHAR(MAX) = @array_sit_number;
+                                INSERT INTO cell (transportation_id, sit_number)
+                                SELECT @transportation_id, CAST(value AS INT)
+                                FROM OPENJSON(@sit_numbers);
                             `);
             
 

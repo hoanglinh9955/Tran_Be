@@ -253,9 +253,9 @@ exports.createOrder = async (req, res, next) => {
     next(error);
     return;
   }
-  const {transport_id, user_id, quantity} = req.body;
+  const {transport_id, user_id, quantity, array_sit_number} = req.body;
   const ticket = new Ticket();
-  const result = await ticket.orderTicket(transport_id, user_id, quantity)
+  const result = await ticket.orderTicket(transport_id, user_id, quantity, array_sit_number)
     .then(result => { return result })
     .catch(err => console.log(err))
 
