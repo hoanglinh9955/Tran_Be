@@ -49,8 +49,9 @@ class Ticket {
             .input('transportation_id', mssql.INT, transport_id)
             .input('user_id', mssql.INT, user_id)
             .input('quantity', mssql.INT, quantity)
-            .query(`INSERT INTO ticket (transportation_id, user_id, quantity)
-                    VALUES (@transportation_id, @user_id, @quantity);
+            .input('status', mssql.INT, 1)
+            .query(`INSERT INTO ticket (transportation_id, user_id, quantity, status)
+                    VALUES (@transportation_id, @user_id, @quantity, @status);
                     SELECT SCOPE_IDENTITY() AS ticket_id;
             `);
             //get ticket detail
@@ -113,6 +114,26 @@ class Ticket {
             console.log(err)
         }
     }
+    async getCellByTranId(tran_id) {
+        try {
+    
+          // create connection pool
+          const pool = await mssql.connect(config.sql);
+          const query = `SELECT cell.sit_number from cell
+                         where cell.transportation_id = @tran_id`;
+    
+          // create a new request object
+          const result = await pool.request()
+            .input('tran_id', mssql.INT, tran_id)
+            .query(query)
+    
+          console.log(result.recordset)
+          // return the result
+          return result;
+        } catch (err) {
+          console.error('Error:', err);
+        }
+      }
   }
   
 module.exports = Ticket;

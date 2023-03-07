@@ -10,9 +10,11 @@ router.post('/getTripsByComId', companyController.getTripsByComId);
 
 router.post('/createUpdateTripByCompany', companyController.createUpdateTripByCompany);
 
-router.post('/createUpdateRouteByComId' ,[  check('depart').notEmpty().withMessage('Depart is Empty.'),
-                                      check('destination').notEmpty().withMessage('Destination is Empty.'),
-                                    ],companyController.createUpdateRouteByComId);
+router.post('/createUpdateRouteByComId',companyController.createUpdateRouteByComId);
+
+//,[  check('depart').notEmpty().withMessage('Depart is Empty.'),
+//check('destination').notEmpty().withMessage('Destination is Empty.'),
+//],
 
 router.post('/getRoutesNameByComId', companyController.getRouteNameByComId);
 

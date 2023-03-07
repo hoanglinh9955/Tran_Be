@@ -24,7 +24,7 @@ class Trip {
       // create connection pool
       const pool = await mssql.connect(config.sql);
       const query = `
-      SELECT t.begin_time, t.end_time, t.distance, t.price, 
+      SELECT tr.id as transport_id, t.begin_time, t.end_time, t.distance, t.price, 
           tr.name as transport_name, tr.image_path, tr.type,
           r.depart, r.destination, t.depart_date,
         c.name as company_name, c.address, c.hotline, c.email, c.status, c.role
@@ -235,7 +235,6 @@ class Trip {
           .input('destination', mssql.NVarChar, destination)
           .query(query1)
 
-        console.log(checkRoute.rowsAffected[0])
         var r;
         if (checkRoute.rowsAffected[0] > 0) {
           r = 'route_exist'

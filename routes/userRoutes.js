@@ -20,7 +20,8 @@ router.post("/login",
             ],
  userController.login);
 
-router.post('/user/orderTicket', userController.createOrder)
+router.post('/user/orderTicket', userController.createOrder);
 
+router.post('/user/getCell', userController.getCellByTranId);
 
 module.exports = router;

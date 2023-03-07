@@ -190,7 +190,8 @@ exports.login = async (req, res, next) => {
             token: token,
             userId: loadedUser.id.toString(),
             role: loadedUser.role,
-            status: loadedUser.status
+            status: loadedUser.status,
+            user_name: loadedUser.name
           });
           return;
         
@@ -284,5 +285,66 @@ exports.createOrder = async (req, res, next) => {
     })
     return
   }
+
+}
+
+
+exports.getCellByTranId = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Invalid Input');
+    error.statusCode = 200;
+    error.message = errors.errors;
+    error.data = false;
+    next(error);
+    return;
+  }
+  const {transport_id, type} = req.body;
+  const ticket = new Ticket();
+  const result = await ticket.getCellByTranId(transport_id)
+    .then(result => { return result })
+    .catch(err => console.log(err))
+
+    
+  console.log(result)
+  if (result === undefined) {
+    res.status(200).json({
+      message: "Don't Have Sit Been Ordered !!!",
+      data: false
+    })
+    return
+  }
+
+  if (result) {
+    class cell {
+      constructor(sit_number, boolean) {
+        this.sit_number = sit_number;
+        this.boolean = boolean;
+      }
+    }
+
+    const array = result.recordset;
+    const array_result = [];
+    for (i = 0; i < type; i++){
+      check = false;
+      array.map(e => {
+        if(e.sit_number === i+1){
+          array_result.push(new cell(i+1, true))
+          check = true
+        }
+      })
+        if(check === false){
+          array_result.push(new cell(i+1, false))
+      }
+    }
+    console.log(array)
+    res.status(200).json({
+      message: 'Get Cell Success',
+      data: true,
+      result: array_result
+    })
+    return
+  }
+  
 }
 
